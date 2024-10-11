@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "152475961471",
+    "project_id": "tasklist-bdc44",
+    "storage_bucket": "tasklist-bdc44.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:152475961471:android:ea786288842c9cdac2974a",
+        "android_client_info": {
+          "package_name": "com.bmc.tasklist"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDnNFePi8EXJOQklhxY9ujWErswMpLU0W0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
