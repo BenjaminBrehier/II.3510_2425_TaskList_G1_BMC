@@ -22,6 +22,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ui.LoginActivity" android:exported="true" />
+
+        <activity android:name=".ui.RegisterActivity" android:exported="true" />
     </application>
 
 </manifest>
