@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -90,11 +91,26 @@ public class RegisterActivity extends AppCompatActivity {
                         userData.put("badge", Arrays.asList("fast", 100));
                         userData.put("level", 30);
 
+                        // Create user document
                         db.collection("users").document(userId)
                                 .set(userData)
                                 .addOnSuccessListener(aVoid -> {
                                     startActivity(new Intent(RegisterActivity.this, MainActivity.class));
-                                    finish();
+                                    Map<String, Object> defaultTask = new HashMap<>();
+                                    defaultTask.put("title", "First Task");
+                                    defaultTask.put("description", "This is your first task.");
+                                    defaultTask.put("completed", false);
+
+                                    // Add default task
+                                    db.collection("users").document(userId)
+                                    .collection("tasks")
+                                    .add(defaultTask)
+                                    .addOnSuccessListener(taskRef -> {
+                                        Log.d("Firestore", "Default task added with ID: " + taskRef.getId());
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.w("Firestore", "Error adding task", e);
+                                    });
                                 })
                                 .addOnFailureListener(e -> {
                                     Toast.makeText(RegisterActivity.this, "Échec de la création du document", Toast.LENGTH_SHORT).show();
