@@ -100,28 +100,31 @@ public class HomeFragment extends Fragment {
                         String taskId = document.getId();
                         String title = document.getString("title");
                         String description = document.getString("description");
-                        boolean completed = document.getBoolean("completed");
+                        boolean completed = Boolean.TRUE.equals(document.getBoolean("completed"));
                         String tag = document.getString("tag");
 
-                        TaskCard taskCard = new TaskCard(getContext());
-                        taskCard.setTaskName(title);
-                        taskCard.setCheckbox(completed);
-                        taskCard.setCategory(tag);
+                        if(!completed) { // Only print tasks not completed
+                            TaskCard taskCard = new TaskCard(getContext());
+                            taskCard.setTaskName(title);
+                            taskCard.setCheckbox(completed);
+                            taskCard.setCategory(tag);
 
-                        taskCard.getCheckbox().setOnCheckedChangeListener((buttonView, isChecked) -> {
-                            db.collection("users")
-                                .document(userId)
-                                .collection("tasks")
-                                .document(taskId)
-                                .update("completed", isChecked)
-                                .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(getContext(), "Tâche mise à jour", Toast.LENGTH_SHORT).show();
-                                })
-                                .addOnFailureListener(e -> {
-                                    Toast.makeText(getContext(), "Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show();
-                                });
-                        });
-                        taskListLayout.addView(taskCard);
+                            taskCard.getCheckbox().setOnCheckedChangeListener((buttonView, isChecked) -> {
+                                db.collection("users")
+                                        .document(userId)
+                                        .collection("tasks")
+                                        .document(taskId)
+                                        .update("completed", isChecked)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Toast.makeText(getContext(), "Tâche mise à jour", Toast.LENGTH_SHORT).show();
+                                            taskListLayout.removeView(taskCard);
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Toast.makeText(getContext(), "Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show();
+                                        });
+                            });
+                            taskListLayout.addView(taskCard);
+                        }
                     }
                 } else {
                     Log.d("Firestore", "Erreur lors de la récupération des tâches : ", task.getException());

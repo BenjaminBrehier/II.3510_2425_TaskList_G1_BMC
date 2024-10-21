@@ -16,7 +16,6 @@ public class TaskCard extends CardView {
 
     private TextView taskName;
     private Button categoryButton;
-    private ProgressBar progressBar;
     private CheckBox checkBox;
 
     public TaskCard(Context context) {
@@ -35,7 +34,6 @@ public class TaskCard extends CardView {
 
         taskName = findViewById(R.id.task_name);
         categoryButton = findViewById(R.id.btn_task_category);
-        progressBar = findViewById(R.id.task_progress_bar);
         checkBox = findViewById(R.id.checkBox);
     }
 
@@ -46,10 +44,6 @@ public class TaskCard extends CardView {
     public void setCategory(String category) {
         categoryButton.setText(category);
         //categoryButton.setBackgroundTintList(getResources().getColorStateList(color, null));
-    }
-
-    public void setProgress(int progress) {
-        progressBar.setProgress(progress);
     }
 
     public void setCheckbox(boolean isChecked) {

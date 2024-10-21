@@ -13,7 +13,7 @@
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.bmc.tasklist.ui.dashboard.DashboardFragment"
+        android:name="com.bmc.tasklist.ui.home.CompletedFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard" />
 
