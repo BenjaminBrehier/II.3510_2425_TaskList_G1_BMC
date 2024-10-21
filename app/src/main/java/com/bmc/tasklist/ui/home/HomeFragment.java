@@ -110,6 +110,42 @@ public class HomeFragment extends Fragment {
                             taskCard.setCategory(tag);
 
                             taskCard.getCheckbox().setOnCheckedChangeListener((buttonView, isChecked) -> {
+                                Long taskExp = document.getLong("exp");
+
+                                db.collection("users")
+                                        .document(userId)
+                                        .get()
+                                        .addOnSuccessListener(userDocument -> {
+                                            if (userDocument.exists()) {
+                                                Long currentExp = userDocument.getLong("exp");
+                                                Long currentLevel = userDocument.getLong("level");
+
+                                                if (currentExp == null) currentExp = 0L; // If exp is null
+                                                if (currentLevel == null) currentLevel = 1L; // if level is null
+                                                long newExp = currentExp;
+
+                                                if(taskExp != null){
+                                                    newExp = currentExp + taskExp;
+                                                }
+
+
+                                                Long newLevel = currentLevel;
+                                                if (newExp >= currentLevel * 1000) {
+                                                    newLevel = (newExp / 1000) + 1;
+                                                }
+
+                                                db.collection("users")
+                                                        .document(userId)
+                                                        .update("exp", newExp, "level", newLevel)
+                                                        .addOnSuccessListener(aVoid -> {
+                                                            Toast.makeText(getContext(), "Expérience et niveau mis à jour", Toast.LENGTH_SHORT).show();
+                                                        })
+                                                        .addOnFailureListener(e -> {
+                                                            Toast.makeText(getContext(), "Erreur lors de la mise à jour de l'EXP", Toast.LENGTH_SHORT).show();
+                                                        });
+                                            }
+                                        });
+
                                 db.collection("users")
                                         .document(userId)
                                         .collection("tasks")

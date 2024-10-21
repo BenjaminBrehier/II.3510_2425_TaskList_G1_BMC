@@ -89,7 +89,8 @@ public class RegisterActivity extends AppCompatActivity {
                         Map<String, Object> userData = new HashMap<>();
                         userData.put("username", user.getEmail());
                         userData.put("badge", Arrays.asList("fast", 100));
-                        userData.put("level", 30);
+                        userData.put("level", 1);
+                        userData.put("exp", 0);
 
                         // Create user document
                         db.collection("users").document(userId)
@@ -101,6 +102,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     defaultTask.put("description", "This is your first task.");
                                     defaultTask.put("completed", false);
                                     defaultTask.put("tag", "homework");
+                                    defaultTask.put("exp", 100);
 
                                     // Add default task
                                     db.collection("users").document(userId)
