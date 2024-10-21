@@ -82,79 +82,6 @@ public class HomeFragment extends Fragment {
 
     private void loadTasks(String userId) {
         db.collection("users")
-        .document(userId)
-        .collection("tasks")
-        .get()
-        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    LinearLayout taskListLayout = binding.taskListLayout;
-
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        String taskId = document.getId();
-                        String title = document.getString("title");
-                        String description = document.getString("description");
-                        boolean completed = Boolean.TRUE.equals(document.getBoolean("completed"));
-                        String tag = document.getString("tag");
-
-                        if(!completed) { // Only print tasks not completed
-                            TaskCard taskCard = new TaskCard(getContext());
-                            taskCard.setTaskName(title);
-                            taskCard.setCheckbox(completed);
-                            taskCard.setCategory(tag);
-
-                            taskCard.getCheckbox().setOnCheckedChangeListener((buttonView, isChecked) -> {
-                                Long taskExp = document.getLong("exp");
-
-                                db.collection("users")
-                                        .document(userId)
-                                        .get()
-                                        .addOnSuccessListener(userDocument -> {
-                                            if (userDocument.exists()) {
-                                                Long currentExp = userDocument.getLong("exp");
-                                                Long currentLevel = userDocument.getLong("level");
-
-                                                if (currentExp == null) currentExp = 0L; // If exp is null
-                                                if (currentLevel == null) currentLevel = 1L; // if level is null
-                                                long newExp = currentExp;
-
-                                                if(taskExp != null){
-                                                    newExp = currentExp + taskExp;
-                                                }
-
-
-                                                Long newLevel = currentLevel;
-                                                if (newExp >= currentLevel * 1000) {
-                                                    newLevel = (newExp / 1000) + 1;
-                                                }
-
-                                                db.collection("users")
-                                                        .document(userId)
-                                                        .update("exp", newExp, "level", newLevel)
-                                                        .addOnSuccessListener(aVoid -> {
-                                                            Toast.makeText(getContext(), "Expérience et niveau mis à jour", Toast.LENGTH_SHORT).show();
-                                                        })
-                                                        .addOnFailureListener(e -> {
-                                                            Toast.makeText(getContext(), "Erreur lors de la mise à jour de l'EXP", Toast.LENGTH_SHORT).show();
-                                                        });
-                                            }
-                                        });
-
-                                db.collection("users")
-                                        .document(userId)
-                                        .collection("tasks")
-                                        .document(taskId)
-                                        .update("completed", isChecked)
-                                        .addOnSuccessListener(aVoid -> {
-                                            Toast.makeText(getContext(), "Tâche mise à jour", Toast.LENGTH_SHORT).show();
-                                            taskListLayout.removeView(taskCard);
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            Toast.makeText(getContext(), "Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show();
-                                        });
-                            });
-                            taskListLayout.addView(taskCard);
                 .document(userId)
                 .collection("tasks")
                 .get()
@@ -187,6 +114,42 @@ public class HomeFragment extends Fragment {
                                             .addOnSuccessListener(aVoid -> {
                                                 Toast.makeText(getContext(), "Tâche mise à jour", Toast.LENGTH_SHORT).show();
                                                 binding.taskListLayout.removeView(taskCard); // Remove task when completed
+                                                Long taskExp = document.getLong("exp");
+
+                                                // Update User level
+                                                db.collection("users")
+                                                        .document(userId)
+                                                        .get()
+                                                        .addOnSuccessListener(userDocument -> {
+                                                            if (userDocument.exists()) {
+                                                                Long currentExp = userDocument.getLong("exp");
+                                                                Long currentLevel = userDocument.getLong("level");
+
+                                                                if (currentExp == null) currentExp = 0L; // If exp is null
+                                                                if (currentLevel == null) currentLevel = 1L; // if level is null
+                                                                long newExp = currentExp;
+
+                                                                if(taskExp != null){
+                                                                    newExp = currentExp + taskExp;
+                                                                }
+
+
+                                                                Long newLevel = currentLevel;
+                                                                if (newExp >= currentLevel * 1000) {
+                                                                    newLevel = (newExp / 1000) + 1;
+                                                                }
+
+                                                                db.collection("users")
+                                                                        .document(userId)
+                                                                        .update("exp", newExp, "level", newLevel)
+                                                                        .addOnSuccessListener(Void -> {
+                                                                            Toast.makeText(getContext(), "Expérience et niveau mis à jour", Toast.LENGTH_SHORT).show();
+                                                                        })
+                                                                        .addOnFailureListener(e -> {
+                                                                            Toast.makeText(getContext(), "Erreur lors de la mise à jour de l'EXP", Toast.LENGTH_SHORT).show();
+                                                                        });
+                                                            }
+                                                        });
                                             })
                                             .addOnFailureListener(e -> Toast.makeText(getContext(), "Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show());
                                 });
