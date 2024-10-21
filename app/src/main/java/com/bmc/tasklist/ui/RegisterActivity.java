@@ -100,6 +100,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     defaultTask.put("title", "First Task");
                                     defaultTask.put("description", "This is your first task.");
                                     defaultTask.put("completed", false);
+                                    defaultTask.put("tag", "homework");
 
                                     // Add default task
                                     db.collection("users").document(userId)

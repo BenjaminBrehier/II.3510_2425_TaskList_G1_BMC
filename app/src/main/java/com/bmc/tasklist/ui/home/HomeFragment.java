@@ -1,6 +1,5 @@
 package com.bmc.tasklist.ui.home;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,11 +11,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bmc.tasklist.databinding.FragmentHomeBinding;
-import com.bmc.tasklist.ui.LoginActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,7 +25,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -96,54 +94,35 @@ public class HomeFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    ViewGroup taskListLayout = binding.taskListLayout;
+                    LinearLayout taskListLayout = binding.taskListLayout;
 
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         String taskId = document.getId();
                         String title = document.getString("title");
                         String description = document.getString("description");
                         boolean completed = document.getBoolean("completed");
+                        String tag = document.getString("tag");
 
-                        LinearLayout taskLayout = new LinearLayout(getContext());
-                        taskLayout.setOrientation(LinearLayout.VERTICAL);
+                        TaskCard taskCard = new TaskCard(getContext());
+                        taskCard.setTaskName(title);
+                        taskCard.setCheckbox(completed);
+                        taskCard.setCategory(tag);
 
-                        LinearLayout titleLayout = new LinearLayout(getContext());
-                        titleLayout.setOrientation(LinearLayout.HORIZONTAL);
-
-                        CheckBox taskCheckBox = new CheckBox(getContext());
-                        taskCheckBox.setChecked(completed);
-
-                        taskCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                        db.collection("users")
-                            .document(userId)
-                            .collection("tasks")
-                            .document(taskId)
-                            .update("completed", isChecked)
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(getContext(), "Tâche mise à jour", Toast.LENGTH_SHORT).show();
-                            })
-                            .addOnFailureListener(e -> {
-                                Toast.makeText(getContext(), "Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show();
-                            });
+                        taskCard.getCheckbox().setOnCheckedChangeListener((buttonView, isChecked) -> {
+                            db.collection("users")
+                                .document(userId)
+                                .collection("tasks")
+                                .document(taskId)
+                                .update("completed", isChecked)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(getContext(), "Tâche mise à jour", Toast.LENGTH_SHORT).show();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(getContext(), "Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show();
+                                });
                         });
-
-                        TextView taskTitle = new TextView(getContext());
-                        taskTitle.setText(title);
-                        taskTitle.setTextSize(16f);
-
-                        TextView taskDescription = new TextView(getContext());
-                        taskDescription.setText(description);
-                        taskDescription.setTextSize(14f);
-
-                        titleLayout.addView(taskCheckBox);
-                        titleLayout.addView(taskTitle);
-
-                        taskLayout.addView(titleLayout);
-                        taskLayout.addView(taskDescription);
-
-                        taskListLayout.addView(taskLayout);
+                        taskListLayout.addView(taskCard);
                     }
-
                 } else {
                     Log.d("Firestore", "Erreur lors de la récupération des tâches : ", task.getException());
                 }
