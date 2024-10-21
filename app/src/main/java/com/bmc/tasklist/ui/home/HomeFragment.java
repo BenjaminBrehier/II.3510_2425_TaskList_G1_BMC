@@ -26,6 +26,7 @@ import java.util.Map;
 
 public class HomeFragment extends Fragment {
 
+    private final int EXP = 100; // Default task EXP
     private FragmentHomeBinding binding;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
@@ -185,6 +186,7 @@ public class HomeFragment extends Fragment {
                     taskData.put("title", title);
                     taskData.put("description", description);
                     taskData.put("tag", tag);
+                    taskData.put("exp", EXP);
                     taskData.put("completed", false);
 
                     db.collection("users")
