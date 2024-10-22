@@ -125,6 +125,7 @@ public class HomeFragment extends Fragment {
                         taskCard.setCheckbox(completed);
                         taskCard.setCategory(tag);
 
+                        // Update User Exp
                         taskCard.getCheckbox().setOnCheckedChangeListener((buttonView, isChecked) -> {
                             db.collection("users")
                             .document(userId)
@@ -171,6 +172,7 @@ public class HomeFragment extends Fragment {
                                     }
                                 });
                                 updateBadges(db, userId, tag);
+                                updateUserExp(userId, taskExp);
                             })
                             .addOnFailureListener(e -> Toast.makeText(getContext(), "Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show());
                         });
@@ -199,6 +201,48 @@ public class HomeFragment extends Fragment {
                 Log.d("Firestore", "Erreur lors de la récupération des tâches : ", task.getException());
             }
         });
+    }
+
+    private void updateUserExp(String userId, Long taskExp){
+        // Update User level
+        db.collection("users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener(userDocument -> {
+                    if (userDocument.exists()) {
+                        Long currentExp = userDocument.getLong("exp");
+                        Long currentLevel = userDocument.getLong("level");
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        String username = user.getEmail();
+
+                        if (currentExp == null) currentExp = 0L; // If exp is null
+                        if (currentLevel == null) currentLevel = 1L; // if level is null
+
+                        long newExp;
+                        if(taskExp != null){
+                            newExp = currentExp + taskExp;
+                        } else {
+                            newExp = currentExp;
+                        }
+                        Long newLevel;
+                        if (newExp >= currentLevel * 1000) {
+                            newLevel = (newExp / 1000) + 1;
+                        } else {
+                            newLevel = currentLevel;
+                        }
+
+                        db.collection("users")
+                                .document(userId)
+                                .update("exp", newExp, "level", newLevel)
+                                .addOnSuccessListener(Void -> {
+                                    Toast.makeText(getContext(), "Expérience et niveau mis à jour", Toast.LENGTH_SHORT).show();
+                                    binding.topProfile.refreshData(username, newExp, newLevel);
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(getContext(), "Erreur lors de la mise à jour de l'EXP", Toast.LENGTH_SHORT).show();
+                                });
+                    }
+                });
     }
 
     private void showCreateTaskDialog() {

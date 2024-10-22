@@ -42,6 +42,17 @@ public class TopProfile extends CardView {
         init();
     }
 
+    // To update User profile
+    public void refreshData(String username , Long exp, Long level){
+        usernameTextView.setText(username);
+        levelTextView.setText("Level: " + (level != null ? level : 1));
+        if (exp != null) {
+            progressBar.setProgress((int) (exp % 1000) / 10); // Exp modulo 1000
+        } else {
+            progressBar.setProgress(0);
+        }
+    }
+
     @SuppressLint("SetTextI18n")
     private void init() {
         mAuth = FirebaseAuth.getInstance();
@@ -70,13 +81,7 @@ public class TopProfile extends CardView {
                                     Long level = (Long) userData.get("level");
                                     Long exp = (Long) userData.get("exp");
 
-                                    usernameTextView.setText(username);
-                                    levelTextView.setText("Level: " + (level != null ? level : 1));
-                                    if (exp != null) {
-                                        progressBar.setProgress((int) (exp % 1000) / 10); // Exp modulo 1000
-                                    } else {
-                                        progressBar.setProgress(0);
-                                    }
+                                    refreshData(username ,exp,level);
                                 }
                             } else {
                                 Log.d("Firestore", "Aucun document trouvé pour cet utilisateur");
