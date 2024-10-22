@@ -45,6 +45,16 @@
                 android:text="Category"
                 android:textColor="#000" />
 
+            <ImageView
+                android:id="@+id/deleteIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:visibility="gone"
+                android:src="@drawable/ic_trash"
+                android:layout_gravity="center_vertical"
+                card_view:tint="@android:color/holo_red_dark" />
+
         </LinearLayout>
 
     </LinearLayout>
