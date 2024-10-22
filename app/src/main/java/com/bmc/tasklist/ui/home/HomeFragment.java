@@ -20,10 +20,14 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class HomeFragment extends Fragment {
@@ -166,6 +170,7 @@ public class HomeFragment extends Fragment {
                                         });
                                     }
                                 });
+                                updateBadges(db, userId, tag);
                             })
                             .addOnFailureListener(e -> Toast.makeText(getContext(), "Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show());
                         });
@@ -240,6 +245,152 @@ public class HomeFragment extends Fragment {
 
         bottomSheetDialog.show();
     }
+
+    public void updateBadges(FirebaseFirestore db, String userId, String tag){
+        int[] updatedProgress = new int[1];
+        System.out.println("Test");
+        db.collection("users")
+            .document(userId)
+            .collection("badges")
+            .document("all")
+            .update("progress", FieldValue.increment(1))
+            .addOnSuccessListener(aVoid -> {
+                db.collection("users")
+                    .document(userId)
+                    .collection("badges")
+                    .document("all")
+                    .get().addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                Long progress = document.getLong("progress");
+                                if (progress != null) {
+                                    updatedProgress[0] = progress.intValue();
+                                }
+
+                                db.collection("badges")
+                                    .document("all")
+                                        .get().addOnCompleteListener(task2 -> {
+                                            if (task2.isSuccessful()) {
+                                                DocumentSnapshot document2 = task2.getResult();
+                                                if (document2.exists()) {
+                                                    List<Object> lvl0 = (List<Object>) document2.get("lvl0");
+                                                    String title = "";
+                                                    if (lvl0 != null && lvl0.size() > 1 && lvl0.get(1) instanceof Long) {
+                                                        if (updatedProgress[0] < (Long) lvl0.get(1)) {
+                                                            title = (String) lvl0.get(0);
+                                                        } else {
+                                                            List<Object> lvl1 = (List<Object>) document2.get("lvl1");
+                                                            if (lvl1 != null && lvl1.size() > 1) {
+                                                                if (updatedProgress[0] < (Long) lvl1.get(1)) {
+                                                                    title = (String) lvl1.get(0);
+                                                                } else {
+                                                                    List<Object> lvl2 = (List<Object>) document2.get("lvl2");
+                                                                    if (lvl2 != null && lvl2.size() > 1) {
+                                                                        if (updatedProgress[0] < (Long) lvl2.get(1)) {
+                                                                            title = (String) lvl2.get(0);
+                                                                        } else {
+                                                                            title = (String) ((List<?>) document2.get("lvl3")).get(0);
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    db.collection("users")
+                                                            .document(userId)
+                                                            .collection("badges")
+                                                            .document("all")
+                                                            .update("title", title);
+                                                }
+                                            }
+                                        });
+                            }
+                        }
+                    });
+                });
+
+
+        int[] updatedProgressTag = new int[1];
+        try {
+            db.collection("users")
+                    .document(userId)
+                    .collection("badges")
+                    .document(tag).get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                db.collection("users")
+                                        .document(userId)
+                                        .collection("badges")
+                                        .document(tag).update("progress", FieldValue.increment(1))
+                                        .addOnSuccessListener(aVoid -> {
+                                            db.collection("users")
+                                                    .document(userId)
+                                                    .collection("badges")
+                                                    .document(tag)
+                                                    .get().addOnCompleteListener(task2 -> {
+                                                        if (task2.isSuccessful()) {
+                                                            DocumentSnapshot document2 = task2.getResult();
+                                                            if (document2.exists()) {
+                                                                Long progress = document2.getLong("progress");
+                                                                if (progress != null) {
+                                                                    updatedProgressTag[0] = progress.intValue();
+                                                                }
+
+                                                                db.collection("badges")
+                                                                        .document(tag)
+                                                                        .get().addOnCompleteListener(task3 -> {
+                                                                            if (task3.isSuccessful()) {
+                                                                                DocumentSnapshot document3 = task3.getResult();
+                                                                                if (document3.exists()) {
+                                                                                    List<Object> lvl0 = (List<Object>) document3.get("lvl0");
+                                                                                    String title = "";
+                                                                                    if (lvl0 != null && lvl0.size() > 1 && lvl0.get(1) instanceof Long) {
+                                                                                        if (updatedProgressTag[0] < (Long) lvl0.get(1)) {
+                                                                                            title = (String) lvl0.get(0);
+                                                                                        } else {
+                                                                                            List<Object> lvl1 = (List<Object>) document3.get("lvl1");
+                                                                                            if (lvl1 != null && lvl1.size() > 1) {
+                                                                                                if (updatedProgressTag[0] < (Long) lvl1.get(1)) {
+                                                                                                    title = (String) lvl1.get(0);
+                                                                                                } else {
+                                                                                                    List<Object> lvl2 = (List<Object>) document3.get("lvl2");
+                                                                                                    if (lvl2 != null && lvl2.size() > 1) {
+                                                                                                        if (updatedProgressTag[0] < (Long) lvl2.get(1)) {
+                                                                                                            title = (String) lvl2.get(0);
+                                                                                                        } else {
+                                                                                                            title = (String) ((List<?>) document3.get("lvl3")).get(0);
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                    db.collection("users")
+                                                                                            .document(userId)
+                                                                                            .collection("badges")
+                                                                                            .document(tag)
+                                                                                            .update("title", title);
+                                                                                }
+                                                                            }
+                                                                        });
+                                                            }
+                                                        }
+                                                    });
+                                        });
+                                ;
+                                ;
+                            }
+                        }
+                    });
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
 
     @Override
     public void onDestroyView() {
