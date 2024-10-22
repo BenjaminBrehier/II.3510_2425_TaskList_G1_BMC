@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bmc.tasklist.databinding.FragmentDashboardBinding;
 import com.bmc.tasklist.ui.dashboard.DashboardViewModel;
+import com.bmc.tasklist.ui.profile.TopProfile;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -49,6 +50,8 @@ public class CompletedFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
 
+        TopProfile topProfile = binding.topProfile;
+        topProfile = new TopProfile(getContext());
 
         db.collection("users")
                 .document(userId)

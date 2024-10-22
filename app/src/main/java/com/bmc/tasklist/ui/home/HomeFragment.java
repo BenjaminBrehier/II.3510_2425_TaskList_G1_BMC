@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bmc.tasklist.R;
 import com.bmc.tasklist.databinding.FragmentHomeBinding;
+import com.bmc.tasklist.ui.profile.TopProfile;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -35,7 +36,6 @@ public class HomeFragment extends Fragment {
         HomeViewModel homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        homeViewModel.getText().observe(getViewLifecycleOwner(), binding.textHome::setText);
 
         // Set the create button listener
         binding.createButton.setOnClickListener(v -> showCreateTaskDialog());
@@ -50,33 +50,10 @@ public class HomeFragment extends Fragment {
         }
 
         db = FirebaseFirestore.getInstance();
-
-        // Get user's profile
-        db.collection("users")
-                .document(userId)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document != null && document.exists()) {
-                            Map<String, Object> userData = document.getData();
-                            Log.d("Firestore", "Document trouvé : " + userData);
-
-                            if (userData != null) {
-                                binding.textHome.setText((String) userData.get("username"));
-
-                                Log.d("Firestore", "Level: " + userData.get("level"));
-                            }
-                        } else {
-                            Log.d("Firestore", "Aucun document trouvé pour cet ID");
-                        }
-                    } else {
-                        Log.d("Firestore", "Erreur lors de la récupération du document utilisateur : ", task.getException());
-                    }
-                });
-
         // Get user's tasks
         loadTasks(userId);
+        TopProfile topProfile = binding.topProfile;
+        topProfile = new TopProfile(getContext());
 
         return root;
     }
