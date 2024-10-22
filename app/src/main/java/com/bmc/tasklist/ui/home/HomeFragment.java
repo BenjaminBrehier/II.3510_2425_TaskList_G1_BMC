@@ -286,6 +286,7 @@ public class HomeFragment extends Fragment {
                                                 if (document2.exists()) {
                                                     List<Object> lvl0 = (List<Object>) document2.get("lvl0");
                                                     String title = "";
+                                                    int level = 0;
                                                     if (lvl0 != null && lvl0.size() > 1 && lvl0.get(1) instanceof Long) {
                                                         if (updatedProgress[0] < (Long) lvl0.get(1)) {
                                                             title = (String) lvl0.get(0);
@@ -294,13 +295,16 @@ public class HomeFragment extends Fragment {
                                                             if (lvl1 != null && lvl1.size() > 1) {
                                                                 if (updatedProgress[0] < (Long) lvl1.get(1)) {
                                                                     title = (String) lvl1.get(0);
+                                                                    level = 1;
                                                                 } else {
                                                                     List<Object> lvl2 = (List<Object>) document2.get("lvl2");
                                                                     if (lvl2 != null && lvl2.size() > 1) {
                                                                         if (updatedProgress[0] < (Long) lvl2.get(1)) {
                                                                             title = (String) lvl2.get(0);
+                                                                            level = 2;
                                                                         } else {
                                                                             title = (String) ((List<?>) document2.get("lvl3")).get(0);
+                                                                            level = 3;
                                                                         }
                                                                     }
                                                                 }
@@ -312,6 +316,11 @@ public class HomeFragment extends Fragment {
                                                             .collection("badges")
                                                             .document("all")
                                                             .update("title", title);
+                                                    db.collection("users")
+                                                            .document(userId)
+                                                            .collection("badges")
+                                                            .document("all")
+                                                            .update("level", level);
                                                 }
                                             }
                                         });
