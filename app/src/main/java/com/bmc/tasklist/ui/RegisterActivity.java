@@ -34,7 +34,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+
 public class RegisterActivity extends AppCompatActivity {
+
+    public interface BadgeCallback {
+        void onBadgesFetched(List<String> badgeNames);
+    }
 
     private EditText emailEditText, passwordEditText;
     private Button registerButton;
@@ -95,61 +101,64 @@ public class RegisterActivity extends AppCompatActivity {
                         userData.put("exp", 0);
 
                         // Create user document and badges
-                        createUserDocument(userId,  db, userData, task);
-                        createUserBadges(userId,  db, userData, task);
+                        createUserDocument(userId,  db, userData);
+                        createUserBadges(userId,  db, userData);
                     }
                 } else {
                     Toast.makeText(RegisterActivity.this, "Échec de l'inscription", Toast.LENGTH_SHORT).show();
                 }
             }
 
-            public List<String> getAllBadges(FirebaseFirestore db){
+            public void getAllBadges(FirebaseFirestore db, BadgeCallback callback) {
                 List<String> badgeNames = new ArrayList<>();
                 db.collection("badges")
                         .get()
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
                                 for (QueryDocumentSnapshot document : task.getResult()) {
-                                    // Add the document ID (badge name) to the list
                                     badgeNames.add(document.getId());
                                 }
                                 Log.d("Firestore", "Badge names: " + badgeNames);
+                                callback.onBadgesFetched(badgeNames);
                             } else {
                                 Log.w("Firestore", "Error getting badges.", task.getException());
+                                callback.onBadgesFetched(new ArrayList<>()); // Return an empty list or handle as needed
                             }
                         });
-                return badgeNames;
             }
 
-            public void createUserBadges(String userId, FirebaseFirestore db, Map<String, Object> userData, @NonNull Task<AuthResult> task){
+
+            public void createUserBadges(String userId, FirebaseFirestore db, Map<String, Object> userData){
                 // Create user badges
-                db.collection("badges").document(userId)
+                db.collection("users").document(userId)
                         .set(userData)
                         .addOnSuccessListener(aVoid -> {
-                            for (String badge : getAllBadges(db)) {
-                                startActivity(new Intent(RegisterActivity.this, MainActivity.class));
-                                Map<String, Object> defaultBadges = new HashMap<>();
-                                defaultBadges.put("progress ", 0);
-                                defaultBadges.put("title", badge);
-                                // Add default task
-                                db.collection("users").document(userId)
-                                        .collection("badges")
-                                        .document(badge)
-                                        .set(defaultBadges)
-                                        .addOnSuccessListener(taskRef -> {
-                                            Log.d("Firestore", "Default task added with ID: " + badge);
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            Log.w("Firestore", "Error adding task", e);
-                                        });
-                            }
+                            getAllBadges(db, badgeNames -> {
+                                for (String badge : badgeNames) {
+                                    startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                                    Map<String, Object> defaultBadges = new HashMap<>();
+                                    defaultBadges.put("progress ", 0);
+                                    defaultBadges.put("title", badge);
+                                    // Add default task
+                                    db.collection("users").document(userId)
+                                            .collection("badges")
+                                            .document(badge)
+                                            .set(defaultBadges)
+                                            .addOnSuccessListener(taskRef -> {
+                                                Log.d("Firestore", "Default task added with ID: " + badge);
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Log.w("Firestore", "Error adding task", e);
+                                            });
+                                }
+                            });
                         })
                         .addOnFailureListener(e -> {
                             Toast.makeText(RegisterActivity.this, "Échec de la création du document", Toast.LENGTH_SHORT).show();
                         });
             }
 
-            public void createUserDocument(String userId, FirebaseFirestore db, Map<String, Object> userData, @NonNull Task<AuthResult> task){
+            public void createUserDocument(String userId, FirebaseFirestore db, Map<String, Object> userData){
                 db.collection("users").document(userId)
                         .set(userData)
                         .addOnSuccessListener(aVoid -> {
@@ -178,5 +187,8 @@ public class RegisterActivity extends AppCompatActivity {
             }
 
         });
+
+
     }
 }
+
