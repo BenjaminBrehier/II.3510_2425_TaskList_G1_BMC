@@ -5,8 +5,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -43,7 +45,7 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        // Set the create button listener
+        // Set button listeners
         binding.createButton.setOnClickListener(v -> showCreateTaskDialog());
         binding.manageButton.setOnClickListener(v -> {
             isManaging = !isManaging;
@@ -87,6 +89,7 @@ public class HomeFragment extends Fragment {
         return root;
     }
 
+    // Update the task view to show or hide the delete icon
     private void updateTaskView() {
         // Loop through each child in taskListLayout (starting at 1 to exclude the buttons)
         for (int i = 1; i < binding.taskListLayout.getChildCount(); i++) {
@@ -99,6 +102,7 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    // Load tasks from Firestore
     private void loadTasks(String userId) {
         db.collection("users")
         .document(userId)
@@ -211,6 +215,7 @@ public class HomeFragment extends Fragment {
                 });
     }
 
+    // Show the create task dialog
     private void showCreateTaskDialog() {
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
         View sheetView = getLayoutInflater().inflate(R.layout.task_creation_bottom_sheet, null);
@@ -218,12 +223,28 @@ public class HomeFragment extends Fragment {
 
         EditText taskTitleInput = sheetView.findViewById(R.id.taskTitleInput);
         EditText taskDescriptionInput = sheetView.findViewById(R.id.taskDescriptionInput);
-        EditText taskTagInput = sheetView.findViewById(R.id.taskTagInput);
+        Spinner taskTagSpinner = sheetView.findViewById(R.id.taskTagSpinner);
+
+        db.collection("badges")
+            .get()
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    List<String> tags = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        tags.add(document.getId());
+                    }
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, tags);
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    taskTagSpinner.setAdapter(adapter);
+                } else {
+                    Toast.makeText(getContext(), "Erreur lors de la récupération des tags", Toast.LENGTH_SHORT).show();
+                }
+            });
 
         sheetView.findViewById(R.id.createTaskButton).setOnClickListener(v -> {
             String title = taskTitleInput.getText().toString();
             String description = taskDescriptionInput.getText().toString();
-            String tag = taskTagInput.getText().toString();
+            String tag = taskTagSpinner.getSelectedItem().toString();
 
             if (!title.isEmpty() && !description.isEmpty()) {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();

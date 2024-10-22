@@ -25,12 +25,16 @@
             android:minLines="3"
             android:maxLines="5" />
 
-        <EditText
-            android:id="@+id/taskTagInput"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Tag de la tâche"
-            android:inputType="text" />
+            android:text="Tag" />
+
+        <Spinner
+            android:id="@+id/taskTagSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown" />
 
         <Button
             android:id="@+id/createTaskButton"
@@ -42,6 +46,5 @@
             android:textColor="@android:color/white" />
 
     </LinearLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
