@@ -232,7 +232,11 @@ public class HomeFragment extends Fragment {
                 if (task.isSuccessful()) {
                     List<String> tags = new ArrayList<>();
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        tags.add(document.getId());
+                        String tag = document.getId();
+                        if (tag.equals("all")){
+                            tag = "other";
+                        }
+                        tags.add(tag);
                     }
                     ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, tags);
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

@@ -14,7 +14,6 @@ public class BadgeCard extends CardView {
     private TextView badgeName;
     private TextView progressText;
     private TextView badgeDesc;
-    private ProgressBar progressBar;
 
     public BadgeCard(Context context) {
         super(context);
@@ -44,9 +43,5 @@ public class BadgeCard extends CardView {
     }
     public void setProgressText(String text){
         progressText.setText(text);
-    }
-
-    public void setProgressBar(Long progress, Long next){
-        progressBar.setProgress((int) (progress/next));
     }
 }
