@@ -57,9 +57,6 @@ public class CompletedFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
 
-        TopProfile topProfile = binding.topProfile;
-        topProfile = new TopProfile(getContext());
-
         db.collection("users")
         .document(userId)
         .collection("tasks")

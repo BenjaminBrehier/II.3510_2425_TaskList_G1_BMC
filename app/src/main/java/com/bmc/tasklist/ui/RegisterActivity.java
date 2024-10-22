@@ -26,9 +26,12 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -88,24 +91,78 @@ public class RegisterActivity extends AppCompatActivity {
 
                         Map<String, Object> userData = new HashMap<>();
                         userData.put("username", user.getEmail());
-                        userData.put("badge", Arrays.asList("fast", 100));
                         userData.put("level", 1);
                         userData.put("exp", 0);
 
-                        // Create user document
-                        db.collection("users").document(userId)
-                                .set(userData)
-                                .addOnSuccessListener(aVoid -> {
-                                    startActivity(new Intent(RegisterActivity.this, MainActivity.class));
-                                    Map<String, Object> defaultTask = new HashMap<>();
-                                    defaultTask.put("title", "First Task");
-                                    defaultTask.put("description", "This is your first task.");
-                                    defaultTask.put("completed", false);
-                                    defaultTask.put("tag", "homework");
-                                    defaultTask.put("exp", 100);
+                        // Create user document and badges
+                        createUserDocument(userId,  db, userData, task);
+                        createUserBadges(userId,  db, userData, task);
+                    }
+                } else {
+                    Toast.makeText(RegisterActivity.this, "Échec de l'inscription", Toast.LENGTH_SHORT).show();
+                }
+            }
 
-                                    // Add default task
-                                    db.collection("users").document(userId)
+            public List<String> getAllBadges(FirebaseFirestore db){
+                List<String> badgeNames = new ArrayList<>();
+                db.collection("badges")
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    // Add the document ID (badge name) to the list
+                                    badgeNames.add(document.getId());
+                                }
+                                Log.d("Firestore", "Badge names: " + badgeNames);
+                            } else {
+                                Log.w("Firestore", "Error getting badges.", task.getException());
+                            }
+                        });
+                return badgeNames;
+            }
+
+            public void createUserBadges(String userId, FirebaseFirestore db, Map<String, Object> userData, @NonNull Task<AuthResult> task){
+                // Create user badges
+                db.collection("users").document(userId)
+                        .set(userData)
+                        .addOnSuccessListener(aVoid -> {
+                            for (String badge : getAllBadges(db)) {
+                                startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                                Map<String, Object> defaultBadges = new HashMap<>();
+                                defaultBadges.put("progress ", 0);
+                                defaultBadges.put("title", badge);
+                                // Add default task
+                                db.collection("users").document(userId)
+                                        .collection("badges")
+                                        .document(badge)
+                                        .set(defaultBadges)
+                                        .addOnSuccessListener(taskRef -> {
+                                            Log.d("Firestore", "Default task added with ID: " + badge);
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.w("Firestore", "Error adding task", e);
+                                        });
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(RegisterActivity.this, "Échec de la création du document", Toast.LENGTH_SHORT).show();
+                        });
+            }
+
+            public void createUserDocument(String userId, FirebaseFirestore db, Map<String, Object> userData, @NonNull Task<AuthResult> task){
+                db.collection("users").document(userId)
+                        .set(userData)
+                        .addOnSuccessListener(aVoid -> {
+                            startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                            Map<String, Object> defaultTask = new HashMap<>();
+                            defaultTask.put("title", "First Task");
+                            defaultTask.put("description", "This is your first task.");
+                            defaultTask.put("completed", false);
+                            defaultTask.put("tag", "homework");
+                            defaultTask.put("exp", 100);
+
+                            // Add default task
+                            db.collection("users").document(userId)
                                     .collection("tasks")
                                     .add(defaultTask)
                                     .addOnSuccessListener(taskRef -> {
@@ -114,15 +171,12 @@ public class RegisterActivity extends AppCompatActivity {
                                     .addOnFailureListener(e -> {
                                         Log.w("Firestore", "Error adding task", e);
                                     });
-                                })
-                                .addOnFailureListener(e -> {
-                                    Toast.makeText(RegisterActivity.this, "Échec de la création du document", Toast.LENGTH_SHORT).show();
-                                });
-                    }
-                } else {
-                    Toast.makeText(RegisterActivity.this, "Échec de l'inscription", Toast.LENGTH_SHORT).show();
-                }
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(RegisterActivity.this, "Échec de la création du document", Toast.LENGTH_SHORT).show();
+                        });
             }
+
         });
     }
 }
