@@ -5,7 +5,6 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
@@ -32,7 +31,7 @@ public class TaskCard extends CardView {
         LayoutInflater inflater = LayoutInflater.from(context);
         inflater.inflate(R.layout.card_task, this, true);
 
-        taskName = findViewById(R.id.task_name);
+        taskName = findViewById(R.id.badge_name);
         categoryButton = findViewById(R.id.btn_task_category);
         checkBox = findViewById(R.id.checkBox);
     }
