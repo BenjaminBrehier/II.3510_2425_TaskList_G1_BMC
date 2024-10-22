@@ -16,6 +16,7 @@ public class TaskCard extends CardView {
     private TextView taskName;
     private Button categoryButton;
     private CheckBox checkBox;
+    private TextView taskDescription;
 
     public TaskCard(Context context) {
         super(context);
@@ -32,6 +33,7 @@ public class TaskCard extends CardView {
         inflater.inflate(R.layout.card_task, this, true);
 
         taskName = findViewById(R.id.badge_name);
+        taskDescription = findViewById(R.id.task_description);
         categoryButton = findViewById(R.id.btn_task_category);
         checkBox = findViewById(R.id.checkBox);
     }
@@ -44,6 +46,11 @@ public class TaskCard extends CardView {
         categoryButton.setText(category);
         //categoryButton.setBackgroundTintList(getResources().getColorStateList(color, null));
     }
+
+    public void setTaskDesc(String desc) {
+        taskDescription.setText(desc);
+    }
+
 
     public void setCheckbox(boolean isChecked) {
         checkBox.setChecked(isChecked);

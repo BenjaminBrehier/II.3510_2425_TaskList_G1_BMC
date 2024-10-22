@@ -125,6 +125,7 @@ public class HomeFragment extends Fragment {
                     if (!completed) {
                         TaskCard taskCard = new TaskCard(getContext());
                         taskCard.setTaskName(title);
+                        taskCard.setTaskDesc(description);
                         taskCard.setCheckbox(completed);
                         taskCard.setCategory(tag);
 

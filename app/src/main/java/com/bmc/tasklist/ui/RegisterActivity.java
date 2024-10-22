@@ -38,6 +38,8 @@ import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
 
+    // Used for async callback response while returning getAllBadges
+    // Was difficult to implement but i think it will make the code more easy to read
     public interface BadgeCallback {
         void onBadgesFetched(List<String> badgeNames);
     }
@@ -126,7 +128,6 @@ public class RegisterActivity extends AppCompatActivity {
                             }
                         });
             }
-
 
             public void createUserBadges(String userId, FirebaseFirestore db, Map<String, Object> userData){
                 // Create user badges
