@@ -59,6 +59,8 @@ public class HomeFragment extends Fragment {
             userId = "toto";
         }
 
+
+
         db = FirebaseFirestore.getInstance();
 
         // Get user's profile

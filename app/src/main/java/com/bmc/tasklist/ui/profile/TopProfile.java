@@ -2,16 +2,21 @@ package com.bmc.tasklist.ui.profile;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 
 import com.bmc.tasklist.R;
+import com.bmc.tasklist.ui.LoginActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -26,6 +31,7 @@ public class TopProfile extends CardView {
     private TextView usernameTextView;
     private TextView levelTextView;
     private ProgressBar progressBar;
+    private Button logoutButton;
 
     public TopProfile(@NonNull Context context) {
         super(context);
@@ -63,6 +69,17 @@ public class TopProfile extends CardView {
         usernameTextView = findViewById(R.id.textView);
         levelTextView = findViewById(R.id.textView2);
         progressBar = findViewById(R.id.progressBar);
+        logoutButton = findViewById(R.id.logoutButton);
+
+        logoutButton.setOnClickListener(v -> {
+            mAuth.signOut(); // Sign out the user
+            Log.d("Auth", "User logged out");
+            Toast.makeText(getContext(), "Déconnecté", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getContext(), LoginActivity.class); // Replace with your actual login activity class
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            getContext().startActivity(intent);
+        });
+
 
         FirebaseUser user = mAuth.getCurrentUser();
         String userId;

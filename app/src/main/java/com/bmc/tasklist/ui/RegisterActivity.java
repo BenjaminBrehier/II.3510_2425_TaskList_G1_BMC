@@ -123,7 +123,7 @@ public class RegisterActivity extends AppCompatActivity {
 
             public void createUserBadges(String userId, FirebaseFirestore db, Map<String, Object> userData, @NonNull Task<AuthResult> task){
                 // Create user badges
-                db.collection("users").document(userId)
+                db.collection("badges").document(userId)
                         .set(userData)
                         .addOnSuccessListener(aVoid -> {
                             for (String badge : getAllBadges(db)) {
